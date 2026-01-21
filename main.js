@@ -189,6 +189,26 @@ function onPointerMove( event ) {
     pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
+// Touch support for clicking on projects
+function onTouchStart(event) {
+    // Ignore if touching the D-pad
+    if (event.target.closest('.dpad-container')) return;
+    
+    const touch = event.touches[0];
+    pointer.x = ( touch.clientX / window.innerWidth ) * 2 - 1;
+    pointer.y = - ( touch.clientY / window.innerHeight ) * 2 + 1;
+}
+
+function onTouchEnd(event) {
+    // Ignore if touching the D-pad
+    if (event.target.closest('.dpad-container')) return;
+    
+    // Check for intersection and show modal
+    if (intersectObject !== "") {
+        showModal(intersectObject);
+    }
+}
+
 function normalizeRotation(current, target) {
     // Calculate the shortest path between two angles
     let delta = target - current;
@@ -305,6 +325,8 @@ window.addEventListener('resize', onResize);
 window.addEventListener('click', onClick);
 window.addEventListener('pointermove', onPointerMove);
 window.addEventListener('keydown', onKeyDown);
+window.addEventListener('touchstart', onTouchStart, { passive: true });
+window.addEventListener('touchend', onTouchEnd, { passive: true });
 
 // Mobile D-Pad Controls
 const dpadButtons = document.querySelectorAll('.dpad-btn');

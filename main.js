@@ -306,6 +306,73 @@ window.addEventListener('click', onClick);
 window.addEventListener('pointermove', onPointerMove);
 window.addEventListener('keydown', onKeyDown);
 
+// Mobile D-Pad Controls
+const dpadButtons = document.querySelectorAll('.dpad-btn');
+
+function handleDpadInput(direction) {
+    if (character.isMoving) return;
+    if (!character.instance) return;
+
+    const targetPosition = new THREE.Vector3().copy(character.instance.position);
+    let targetRotation = character.instance.rotation.y;
+
+    switch (direction) {
+        case 'up':
+            targetPosition.z -= character.moveDistance;
+            targetRotation = 0;
+            break;
+        case 'down':
+            targetPosition.z += character.moveDistance;
+            targetRotation = Math.PI;
+            break;
+        case 'left':
+            targetPosition.x -= character.moveDistance;
+            targetRotation = -Math.PI / 2;
+            break;
+        case 'right':
+            targetPosition.x += character.moveDistance;
+            targetRotation = Math.PI / 2;
+            break;
+        default:
+            return;
+    }
+    
+    if (canMoveTo(targetPosition)) {
+        moveCharacter(targetPosition, targetRotation);
+    }
+}
+
+dpadButtons.forEach(btn => {
+    const direction = btn.dataset.direction;
+    
+    // Touch events for mobile
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        btn.classList.add('pressed');
+        handleDpadInput(direction);
+    }, { passive: false });
+    
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        btn.classList.remove('pressed');
+    }, { passive: false });
+    
+    // Mouse events for testing on desktop
+    btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        btn.classList.add('pressed');
+        handleDpadInput(direction);
+    });
+    
+    btn.addEventListener('mouseup', () => {
+        btn.classList.remove('pressed');
+    });
+    
+    btn.addEventListener('mouseleave', () => {
+        btn.classList.remove('pressed');
+    });
+});
+
 function animate() {
 
     if (character.instance) {
